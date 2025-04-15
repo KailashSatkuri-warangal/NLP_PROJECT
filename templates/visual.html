@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Visualizations</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    .plot-img {
+      width: 100%;
+      max-width: 700px;
+      margin: 20px auto;
+      display: block;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container text-center">
+    <h1 class="mt-4">📊 Sentiment Analysis Visualizations</h1>
+
+    <div id="loading" class="my-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+      <p>Generating visualizations... Please wait.</p>
+    </div>
+
+    <div id="plots" style="display:none;">
+      <img id="sentiment_plot" class="plot-img">
+      <img id="wordcloud" class="plot-img">
+      <img id="top_words" class="plot-img">
+      <img id="review_length" class="plot-img">
+      <img id="sentiment_vs_length" class="plot-img">
+      <img id="bigrams" class="plot-img">
+      <img id="trigrams" class="plot-img">
+      <img id="positive_words" class="plot-img">
+      <img id="negative_words" class="plot-img">
+    </div>
+  </div>
+  <script>
+    fetch('/visualizations')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('sentiment_plot').src = 'data:image/png;base64,' + data.sentiment_plot;
+        document.getElementById('wordcloud').src = 'data:image/png;base64,' + data.wordcloud;
+        document.getElementById('top_words').src = 'data:image/png;base64,' + data.top_words;
+        document.getElementById('review_length').src = 'data:image/png;base64,' + data.review_length;
+        document.getElementById('sentiment_vs_length').src = 'data:image/png;base64,' + data.sentiment_vs_length;
+        document.getElementById('bigrams').src = 'data:image/png;base64,' + data.bigrams;
+        document.getElementById('trigrams').src = 'data:image/png;base64,' + data.trigrams;
+        document.getElementById('positive_words').src = 'data:image/png;base64,' + data.positive_words;
+        document.getElementById('negative_words').src = 'data:image/png;base64,' + data.negative_words;
+
+        setTimeout(() => {
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('plots').style.display = 'block';
+        }, 2500);
+      })
+      .catch(err => {
+        document.getElementById('loading').innerText = 'Error loading visualizations.';
+        console.error('Visualization error:', err);
+      });
+  </script>
+  
+
+  <script src="js/main.js"></script>
+</body>
+</html>

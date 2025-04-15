@@ -1,0 +1,79 @@
+body {
+    font-family: 'Outfit', sans-serif;
+    background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+  }
+
+  .main-container {
+    max-width: 850px;
+    width: 100%;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+  }
+
+  h1 {
+    font-weight: 700;
+    color: #222;
+  }
+
+  label {
+    font-weight: 500;
+  }
+
+  .btn-primary {
+    background: linear-gradient(90deg, #6a11cb, #2575fc);
+    border: none;
+    font-weight: 600;
+    transition: 0.3s ease-in-out;
+  }
+
+  .btn-primary:hover {
+    transform: scale(1.03);
+  }
+
+  #toggleVisualsBtn {
+    transition: all 0.3s;
+  }
+
+  .card {
+    border-radius: 16px;
+    transition: box-shadow 0.3s;
+  }
+
+  .card:hover {
+    box-shadow: 0 0 30px rgba(0,0,0,0.08);
+  }
+
+  .spinner-grow {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+
+  img.zoom-trigger {
+    cursor: zoom-in;
+    border-radius: 12px;
+    transition: transform 0.2s;
+  }
+
+  img.zoom-trigger:hover {
+    transform: scale(1.02);
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    border-radius: 16px;
+}
+.dropzone-hover:hover {
+    border-color: #6366f1;
+    background-color: rgba(99, 102, 241, 0.1);
+}
+

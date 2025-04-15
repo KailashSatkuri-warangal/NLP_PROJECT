@@ -1,0 +1,228 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Review Explorer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .filter-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        .sentiment-positive { color: green; }
+        .sentiment-negative { color: red; }
+        .sentiment-neutral { color: blue; }
+        .review-card { transition: transform 0.2s; }
+        .review-card:hover { transform: scale(1.02); }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Review Analyzer</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/product">Reviews</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">🧐 Review Explorer</h1>
+
+        <!-- Advanced Filters -->
+        <div class="card filter-card p-4 mb-4 shadow-sm">
+            <h3>Advanced Filters</h3>
+            <form id="filterForm" method="POST" action="/product">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="sentiment" class="form-label">Sentiment</label>
+                        <select name="sentiment" id="sentiment" class="form-select">
+                            <option value="All">All ({{ counts.All }})</option>
+                            <option value="Positive">Positive ({{ counts.Positive }})</option>
+                            <option value="Negative">Negative ({{ counts.Negative }})</option>
+                            <option value="Neutral">Neutral ({{ counts.Neutral }})</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="keywords" class="form-label">Keywords</label>
+                        <input type="text" name="keywords" id="keywords" class="form-control" placeholder="e.g., amazing quality">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="sort_by" class="form-label">Sort By</label>
+                        <select name="sort_by" id="sort_by" class="form-select">
+                            <option value="id">ID</option>
+                            <option value="sentiment">Sentiment</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row g-3 mt-3">
+                    <div class="col-md-4">
+                        <label for="sort_order" class="form-label">Order</label>
+                        <select name="sort_order" id="sort_order" class="form-select">
+                            <option value="ASC">Ascending</option>
+                            <option value="DESC">Descending</option>
+                        </select>
+                    </div>
+                    <div class="col-md-8">
+                        <label for="sentence" class="form-label">Describe Comments</label>
+                        <div class="input-group">
+                            <input type="text" name="sentence" id="sentence" class="form-control" placeholder="e.g., This is a great product">
+                            <button type="button" id="analyzeSentence" class="btn btn-primary">Analyze</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Apply Filters</button>
+            </form>
+        </div>
+
+
+        <!-- Sentence Analysis Result -->
+        <div id="sentenceResult" class="alert alert-info mt-3" style="display: none;">
+            <div id="sentenceDisplay">
+                <strong>Sentence:</strong> <span id="sentenceText"></span><br>
+                <strong>Sentiment:</strong> <span id="sentimentText"></span><br>
+            </div>
+
+            <!-- Matching Reviews Section -->
+            <div class="modal fade" id="matchingReviewsModal" tabindex="-1" aria-labelledby="matchingReviewsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                      <h5 class="modal-title" id="matchingReviewsModalLabel">📚 Matching Reviews</h5>
+                      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <ul id="matchingReviewsList"></ul>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button class="btn btn-outline-primary" id="openMatchingModal" data-bs-toggle="modal" data-bs-target="#matchingReviewsModal" style="display: none;">
+                Show Matching Reviews
+              </button>
+                            
+            
+        </div>
+        <!-- Debug Toggle Button -->
+        <div class="text-center mb-4">
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#debugModal">Show Debug Info</button>
+        </div>
+        {% if search_count is not none %}
+<div style="text-align: center; margin: 20px 0; font-weight: bold;">
+    Search Found: {{ search_count }} review{{ 's' if search_count != 1 else '' }}
+</div>
+{% endif %}
+
+        <!-- Debug Modal -->
+        <div class="modal fade" id="debugModal" tabindex="-1" aria-labelledby="debugModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="debugModalLabel">🔍 Debug Information</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                Debug: Reviews received: {{ reviews | length }} items
+                {% if reviews %}
+                    <ul>
+                    {% for review in reviews %}
+                        <li>ID: {{ review[0] }}, Text: {{ review[1] }}, Sentiment: {{ review[2] }}</li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No reviews to display.</p>
+                {% endif %}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close Debug</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Review List -->
+        <div class="row g-4">
+            {% if reviews %}
+                {% for review in reviews %}
+                    <div class="col-md-6">
+                        <div class="card review-card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">Review #{{ review[0] }}</h5>
+                                <p class="card-text"><strong>Text:</strong> {{ review[1] or 'No text' }}</p>
+                                <p class="card-text"><strong>Sentiment:</strong> 
+                                    <span class="sentiment-{{ review[2]|lower }}">{{ review[2] }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-warning">No reviews found matching your criteria.</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>     
+        $(document).ready(function() {
+            $('#analyzeSentence').click(function() {
+                const sentence = $('#sentence').val();
+                if (!sentence) {
+                    alert('Please enter a sentence to analyze.');
+                    return;
+                }
+        
+                $.ajax({
+                    url: '/analyze_sentence',
+                    method: 'POST',
+                    data: { sentence: sentence },
+                    success: function(response) {
+                        $('#sentenceText').text(response.sentence);
+                        $('#sentimentText').text(response.sentiment);
+        
+                        let hasMatching = false;
+                        let matchingReviewsHtml = '';
+        
+                        if (response.matching_reviews && response.matching_reviews.length > 0.2) {
+                            response.matching_reviews.forEach(review => {
+                                if (review.similarity > 0.2) {
+                                    hasMatching = true;
+                                    matchingReviewsHtml += `<li>${review.review} (Sentiment: ${review.sentiment}) - Similarity: ${review.similarity}</li>`;
+                                }
+                            });
+                        }
+        
+                        if (hasMatching) {
+                            $('#matchingReviewsList').html(matchingReviewsHtml);
+                            $('#openMatchingModal').show();
+                        } else {
+                            $('#matchingReviewsList').html('<p>No matching reviews with similarity > 0.</p>');
+                            $('#openMatchingModal').hide();
+                        }
+        
+                        $('#sentenceResult').show();
+                    },
+                    error: function(xhr) {
+                        $('#sentenceResult').text('Error: ' + xhr.responseText).show();
+                    }
+                });
+            });
+        });
+        
+</script>
+</body>
+</html>

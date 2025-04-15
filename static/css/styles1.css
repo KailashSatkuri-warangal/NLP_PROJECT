@@ -1,0 +1,22 @@
+.glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.filter-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+}
+.sentiment-positive { color: green; }
+.sentiment-negative { color: red; }
+.sentiment-neutral { color: blue; }
+.review-card {
+    transition: transform 0.2s;
+}
+.review-card:hover {
+    transform: scale(1.02);
+}
+.dropzone-hover {
+    background: rgba(0, 123, 255, 0.1);
+    border-color: #007bff;
+}
