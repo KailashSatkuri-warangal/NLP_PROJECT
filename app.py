@@ -299,13 +299,13 @@ positive_words_img = save_and_encode_plot('positive_words.png')
 negative_words_img = save_and_encode_plot('negative_words.png')
 
 
-
 sia = SentimentIntensityAnalyzer()
 from collections import Counter
 
 @app.route('/product', methods=['GET', 'POST'])
 def product():
-    conn = sqlite3.connect('details.db')
+    
+    conn = sqlite3.connect('reviews.db')
     c = conn.cursor()
 
     # 1. Get all reviews first for counts
@@ -367,7 +367,7 @@ def analyze_sentence():
 
     logging.info(f"Sentiment score: {sentiment_score}, Sentiment: {sentence_sentiment}")
 
-    conn = sqlite3.connect('details.db')
+    conn = sqlite3.connect('reviews.db')
     c = conn.cursor()
     c.execute("SELECT review_text, sentiment FROM reviews")
     reviews = c.fetchall()
