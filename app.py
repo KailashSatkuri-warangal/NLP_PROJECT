@@ -410,7 +410,4 @@ def analyze_sentence():
         'sentiment': sentence_sentiment,
         'matching_reviews': matching_reviews
     })
-
-if __name__ == '__main__':
-    load_initial_data()
-    app.run(debug=True)
+load_initial_data()
